@@ -2,11 +2,12 @@
 //  AppDelegate.m
 //  Modd
 //
-//  Created by Matthew Holcombe on 11/18/15.
-//  Copyright © 2015 Built In Menlo. All rights reserved.
+//  Created on 11/18/15.
+//  Copyright © 2015. All rights reserved.
 //
 
 #import "AppDelegate.h"
+#import "HomeViewController.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +18,17 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// Override point for customization after application launch.
+	
+	UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:[[HomeViewController alloc] init]];
+	[navigationController setNavigationBarHidden:YES];
+	
+	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+	NSLog(@"WINDOW:[%@]", NSStringFromCGRect(self.window.frame));
+	
+	self.window.backgroundColor = [UIColor redColor];
+	self.window.rootViewController = navigationController;
+	[self.window makeKeyAndVisible];
+	
 	return YES;
 }
 
