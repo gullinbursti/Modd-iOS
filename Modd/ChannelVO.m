@@ -9,6 +9,11 @@
 #import "ChannelVO.h"
 
 @implementation ChannelVO
-
-
++ (ChannelVO *)channelWithDictionary:(NSDictionary *)dictionary {
+	ChannelVO *vo = [[ChannelVO alloc] init];
+	
+	vo.dictionary = dictionary;
+	
+	return (vo);
+}
 @end

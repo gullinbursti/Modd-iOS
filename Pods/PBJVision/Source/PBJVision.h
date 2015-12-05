@@ -187,6 +187,8 @@ static CGFloat const PBJVideoBitRate1280x750 = 5000000 * 8;
 - (void)freezePreview;
 - (void)unfreezePreview;
 
+- (void)destroyCamera;
+
 // focus, exposure, white balance
 
 // note: focus and exposure modes change when adjusting on point
@@ -231,6 +233,8 @@ static CGFloat const PBJVideoBitRate1280x750 = 5000000 * 8;
 - (void)resumeVideoCapture;
 - (void)endVideoCapture;
 - (void)cancelVideoCapture;
+
+- (void)destroyCamera;
 
 // thumbnails
 

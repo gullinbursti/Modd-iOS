@@ -26,4 +26,8 @@
 - (UIFont *)helveticaNeueFontRegular;
 - (UIFont *)helveticaNeueFontRegularItalic;
 
+- (NSParagraphStyle *)doubleLineSpacingParagraphStyleForFont:(UIFont *)font;
+- (NSParagraphStyle *)forceLineSpacingParagraphStyle:(CGFloat)spacing forFont:(UIFont *)font;
+- (NSParagraphStyle *)halfLineSpacingParagraphStyleForFont:(UIFont *)font;
+- (NSParagraphStyle *)orthodoxLineSpacingParagraphStyleForFont:(UIFont *)font;
 @end

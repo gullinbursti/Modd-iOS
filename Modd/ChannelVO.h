@@ -8,7 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-
 @interface ChannelVO : NSObject
++ (ChannelVO *)channelWithDictionary:(NSDictionary *)dictionary;
 
+@property (nonatomic, retain) NSDictionary *dictionary;
 @end

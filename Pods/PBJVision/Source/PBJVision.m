@@ -670,7 +670,7 @@ typedef NS_ENUM(GLint, PBJVisionUniformLocationTypes)
 
         _autoUpdatePreviewOrientation = YES;
         _autoFreezePreviewDuringCapture = YES;
-        _usesApplicationAudioSession = NO;
+		_usesApplicationAudioSession = YES;
 
         // Average bytes per second based on video dimensions
         // lower the bitRate, higher the compression
@@ -713,7 +713,7 @@ typedef NS_ENUM(GLint, PBJVisionUniformLocationTypes)
     }
     
     [self _destroyGL];
-    [self _destroyCamera];
+    [self destroyCamera];
 }
 
 #pragma mark - queue helper methods
@@ -853,11 +853,13 @@ typedef void (^PBJVisionBlock)();
 }
 
 // only call from the session queue
-- (void)_destroyCamera
+- (void)destroyCamera
 {
     if (!_captureSession)
-        return;
-    
+		return;
+	
+	
+	
     // current device KVO notifications
     [self removeObserver:self forKeyPath:@"currentDevice.adjustingFocus"];
     [self removeObserver:self forKeyPath:@"currentDevice.adjustingExposure"];
@@ -1897,6 +1899,9 @@ typedef void (^PBJVisionBlock)();
                     
                     if (_flags.thumbnailEnabled) {
                         if (_flags.defaultVideoThumbnails) {
+							for (Float64 i=1; i<(int)capturedDuration; i+=0.5)
+								[self captureVideoThumbnailAtTime:i];
+//							[self captureVideoThumbnailAtTime:capturedDuration * 0.5];
                             [self captureVideoThumbnailAtTime:capturedDuration];
                         }
                         
@@ -1974,6 +1979,8 @@ typedef void (^PBJVisionBlock)();
     AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:url options:nil];
     AVAssetImageGenerator *generate = [[AVAssetImageGenerator alloc] initWithAsset:asset];
     generate.appliesPreferredTrackTransform = YES;
+	generate.requestedTimeToleranceAfter = CMTimeMakeWithSeconds(1/[self videoFrameRate], [self videoFrameRate]);
+	generate.requestedTimeToleranceBefore = CMTimeMakeWithSeconds(1/[self videoFrameRate], [self videoFrameRate]);
     
     int32_t timescale = [@([self videoFrameRate]) intValue];
     
@@ -1993,6 +2000,7 @@ typedef void (^PBJVisionBlock)();
     for (NSNumber *seconds in sortedThumbnailTimes) {
         CMTime time = CMTimeMakeWithSeconds([seconds doubleValue], timescale);
         [captureTimes addObject:[NSValue valueWithCMTime:time]];
+		NSLog(@"capture times:%f", CMTimeGetSeconds(time));
     }
     
     NSMutableArray *thumbnails = [NSMutableArray array];
@@ -2102,8 +2110,10 @@ typedef void (^PBJVisionBlock)();
     
 	NSDictionary *videoSettings = @{ AVVideoCodecKey : AVVideoCodecH264,
                                      AVVideoScalingModeKey : AVVideoScalingModeResizeAspectFill,
-                                     AVVideoWidthKey : @(videoDimensions.width),
-                                     AVVideoHeightKey : @(videoDimensions.height),
+									 AVVideoWidthKey : @(720.0),
+									 AVVideoHeightKey : @(1280.0),
+//                                     AVVideoWidthKey : @(videoDimensions.width),
+//                                     AVVideoHeightKey : @(videoDimensions.height),
                                      AVVideoCompressionPropertiesKey : compressionSettings };
     
     return [_mediaWriter setupVideoWithSettings:videoSettings];
@@ -2302,7 +2312,7 @@ typedef void (^PBJVisionBlock)();
                     case AVErrorMediaServicesWereReset:
                     {
                         DLog(@"error media services were reset");
-                        [self _destroyCamera];
+                        [self destroyCamera];
                         if (_flags.previewRunning)
                             [self startPreview];
                         break;
@@ -2315,7 +2325,7 @@ typedef void (^PBJVisionBlock)();
                     default:
                     {
                         DLog(@"error media services failed, error (%@)", error);
-                        [self _destroyCamera];
+                        [self destroyCamera];
                         if (_flags.previewRunning)
                             [self startPreview];
                         break;

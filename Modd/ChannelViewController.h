@@ -8,7 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ChannelViewController : UIViewController
+#import "ChannelVO.h"
+
+@interface ChannelViewController : UIViewController <UIGestureRecognizerDelegate, UIScrollViewDelegate, UITextFieldDelegate>
 - (id)initFromDeepLinkWithChannelName:(NSString *)channelName;
-- (id)initWithChannelName:(NSString *)channelName;
+- (id)initWithChannel:(ChannelVO *)channelVO;
+- (id)initWithChannel:(ChannelVO *)channelVO asTwitchUser:(NSDictionary *)twitchUser;
 @end

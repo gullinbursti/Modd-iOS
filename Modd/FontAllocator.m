@@ -80,5 +80,36 @@ static FontAllocator *sharedInstance = nil;
 }
 
 
+- (NSParagraphStyle *)doubleLineSpacingParagraphStyleForFont:(UIFont *)font {
+	NSMutableParagraphStyle *paragraphStyle  = [[NSMutableParagraphStyle alloc] init];
+	paragraphStyle.minimumLineHeight = paragraphStyle.maximumLineHeight = font.lineHeight;
+	paragraphStyle.maximumLineHeight *= 2.0;
+	
+	return (paragraphStyle);
+}
+
+- (NSParagraphStyle *)forceLineSpacingParagraphStyle:(CGFloat)spacing forFont:(UIFont *)font {
+	NSMutableParagraphStyle *paragraphStyle  = [[NSMutableParagraphStyle alloc] init];
+	paragraphStyle.minimumLineHeight = paragraphStyle.maximumLineHeight = font.lineHeight + spacing;
+	
+	return (paragraphStyle);
+}
+
+- (NSParagraphStyle *)halfLineSpacingParagraphStyleForFont:(UIFont *)font {
+	NSMutableParagraphStyle *paragraphStyle  = [[NSMutableParagraphStyle alloc] init];
+	paragraphStyle.minimumLineHeight = paragraphStyle.maximumLineHeight = font.capHeight + font.descender;
+	paragraphStyle.maximumLineHeight += font.ascender;
+	
+	return (paragraphStyle);
+}
+
+- (NSParagraphStyle *)orthodoxLineSpacingParagraphStyleForFont:(UIFont *)font {
+	NSMutableParagraphStyle *paragraphStyle  = [[NSMutableParagraphStyle alloc] init];
+	paragraphStyle.minimumLineHeight = paragraphStyle.maximumLineHeight = font.lineHeight;
+	//	paragraphStyle.maximumLineHeight *= 0.5;
+	
+	return (paragraphStyle);
+}
+
 
 @end

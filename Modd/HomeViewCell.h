@@ -1,9 +1,9 @@
 //
-//  HONHomeViewCell.h
-//  HotOrNot
+//  HomeViewCell.h
+//  Modd
 //
-//  Created by BIM  on 7/29/15.
-//  Copyright (c) 2015 Built in Menlo, LLC. All rights reserved.
+//  Created on 7/29/15.
+//  Copyright (c) 2015. All rights reserved.
 //
 
 #import "TableViewCell.h"
@@ -12,7 +12,7 @@
 @class HomeViewCell;
 @protocol HomeViewCellDelegate <TableViewCellDelegate>
 @optional
-- (void)homeViewCell:(HomeViewCell *)cell didSelectChannel:(ChannelVO *)channelVO;
+- (void)homeViewCell:(HomeViewCell *)cell didSelectSubscribe:(ChannelVO *)channelVO;
 @end
 
 @interface HomeViewCell : TableViewCell

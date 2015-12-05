@@ -6,8 +6,14 @@
 //  Copyright © 2015. All rights reserved.
 //
 
+#import <AWSiOSSDKv2/AWSCore.h>
+
+#import "AFNetworking.h"
+
 #import "AppDelegate.h"
 #import "HomeViewController.h"
+#import "CouchbaseEvents.h"
+//#include <curl/curl.h>
 
 @interface AppDelegate ()
 
@@ -15,18 +21,37 @@
 
 @implementation AppDelegate
 
++ (UIViewController *)appNavController {
+	return ([[UIApplication sharedApplication] keyWindow].rootViewController);
+}
+
++ (UINavigationController *)rootNavController {
+	return ([[UIApplication sharedApplication] keyWindow].rootViewController.navigationController);
+}
+
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// Override point for customization after application launch.
+	
+	AWSStaticCredentialsProvider *credentialsProvider = [AWSStaticCredentialsProvider credentialsWithAccessKey:@"AKIAJH4DRAN5YPWCOCUA"
+																									 secretKey:@"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"];
+	
+	AWSServiceConfiguration *configuration = [AWSServiceConfiguration configurationWithRegion:AWSRegionUSEast1
+																		  credentialsProvider:credentialsProvider];
+	
+	[AWSServiceManager defaultServiceManager].defaultServiceConfiguration = configuration;
+	
 	
 	UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:[[HomeViewController alloc] init]];
 	[navigationController setNavigationBarHidden:YES];
 	
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-	NSLog(@"WINDOW:[%@]", NSStringFromCGRect(self.window.frame));
-	
-	self.window.backgroundColor = [UIColor redColor];
 	self.window.rootViewController = navigationController;
 	[self.window makeKeyAndVisible];
+	
+	
+//	CouchbaseEvents *cbevents = [[CouchbaseEvents alloc] init];
+//	[cbevents helloCBL];
 	
 	return YES;
 }

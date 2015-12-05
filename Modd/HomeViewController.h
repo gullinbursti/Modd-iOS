@@ -9,11 +9,16 @@
 #import <UIKit/UIKit.h>
 
 typedef NS_ENUM(NSUInteger, HomeActionSheetType) {
-	HomeActionSheetTypeTermsAgreement = 0
+	HomeActionSheetTypeTermsAgreement = 0,
+	HomeActionSheetTypeRowSelect
+};
+
+typedef NS_ENUM(NSUInteger, HomeAlertViewType) {
+	HomeAlertViewTypeFlag = 0,
+	HomeAlertViewTypeTermsAgreement,
+	HomeAlertViewTypePurchase
 };
 
 @interface HomeViewController : UIViewController <UIActionSheetDelegate, UIAlertViewDelegate, UIScrollViewDelegate, UITableViewDataSource, UITableViewDelegate>
-
-
 @end
 
