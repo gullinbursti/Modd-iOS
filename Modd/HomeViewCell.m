@@ -40,16 +40,16 @@
 
 - (void)populateFields:(NSDictionary *)dictionary {
 	
-	_onlineImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:([[dictionary objectForKey:@"online"] isEqualToString:@"Y"]) ? @"settingsButton_nonActive" : @"settingsButton_nonActive"]];
+	_onlineImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:([[dictionary objectForKey:@"online"] isEqualToString:@"Y"]) ? @"ledOnline" : @"ledOffline"]];
 	_onlineImageView.frame = CGRectOffset(_onlineImageView.frame, 4.0, (self.frame.size.height - _onlineImageView.frame.size.height) * 0.5);
 	[self.contentView addSubview:_onlineImageView];
 	
-	_thumbImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20.0, 10.0, 45.0, 45.0)];
+	_thumbImageView = [[UIImageView alloc] initWithFrame:CGRectMake(25.0, (self.frame.size.height - 40) * 0.5, 40.0, 40.0)];
 	_thumbImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@Channel", (self.indexPath.section == 0) ? @"user" : @"user"]];
 	[self.contentView addSubview:_thumbImageView];
 	
-	UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(80.0, 12.0, self.frame.size.width - 24.0, 28.0)];
-	titleLabel.font = [[[FontAllocator sharedInstance] avenirHeavy] fontWithSize:16];
+	UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(80.0, 10.0, self.frame.size.width - 24.0, 16.0)];
+	titleLabel.font = [[[FontAllocator sharedInstance] avenirHeavy] fontWithSize:12];
 	titleLabel.textColor = [UIColor colorWithRed:0.278 green:0.243 blue:0.243 alpha:1.00];
 	titleLabel.backgroundColor = [UIColor clearColor];
 	titleLabel.text = [dictionary objectForKey:@"title"];
@@ -58,17 +58,17 @@
 	NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
 	[numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
 	
-	UILabel *participantsLabel = [[UILabel alloc] initWithFrame:CGRectMake(titleLabel.frame.origin.x, 36.0, self.frame.size.width - 124.0, 28.0)];
-	participantsLabel.font = [[[FontAllocator sharedInstance] helveticaNeueFontRegular] fontWithSize:15];
+	UILabel *participantsLabel = [[UILabel alloc] initWithFrame:CGRectMake(titleLabel.frame.origin.x, 28.0, self.frame.size.width - 124.0, 14.0)];
+	participantsLabel.font = [[[FontAllocator sharedInstance] helveticaNeueFontRegular] fontWithSize:11];
 	participantsLabel.textColor = [UIColor colorWithWhite:0.718 alpha:1.00];
 	participantsLabel.backgroundColor = [UIColor clearColor];
 	participantsLabel.text = @"Loading…";
 	[self.contentView addSubview:participantsLabel];
 	
 	_subscribeButton = [Button buttonWithType:UIButtonTypeCustom];
-	[_subscribeButton setBackgroundImage:[UIImage imageNamed:@"flagButton_nonActive"] forState:UIControlStateNormal];
-	[_subscribeButton setBackgroundImage:[UIImage imageNamed:@"flagButton_Active"] forState:UIControlStateHighlighted];
-	_subscribeButton.frame = CGRectOffset(_subscribeButton.frame, (self.frame.size.width - _subscribeButton.frame.size.width) - 10.0, (self.frame.size.height - _subscribeButton.frame.size.height) * 0.5);
+	[_subscribeButton setBackgroundImage:[UIImage imageNamed:@"subscribeButton_nonActive"] forState:UIControlStateNormal];
+	[_subscribeButton setBackgroundImage:[UIImage imageNamed:@"subscribeButton_Active"] forState:UIControlStateHighlighted];
+	_subscribeButton.frame = CGRectOffset(_subscribeButton.frame, (self.frame.size.width - _subscribeButton.frame.size.width) - 12.0, (self.frame.size.height - _subscribeButton.frame.size.height) * 0.5);
 	[_subscribeButton addTarget:self action:@selector(_goSubscribe) forControlEvents:UIControlEventTouchUpInside];
 	[self.contentView addSubview:_subscribeButton];
 	
@@ -106,7 +106,8 @@
 			
 			
 			
-			participantsLabel.text = [NSString stringWithFormat:@"%@ follower%@ / %@ view%@", [numberFormatter stringFromNumber:@(followers)], (followers == 1) ? @"" : @"s", [numberFormatter stringFromNumber:@(views)], (views == 1) ? @"" : @"s"];
+			//participantsLabel.text = [NSString stringWithFormat:@"%@ follower%@ / %@ view%@", [numberFormatter stringFromNumber:@(followers)], (followers == 1) ? @"" : @"s", [numberFormatter stringFromNumber:@(views)], (views == 1) ? @"" : @"s"];
+			participantsLabel.text = [NSString stringWithFormat:@"%@ follower%@", [numberFormatter stringFromNumber:@(followers)], (followers == 1) ? @"" : @"s"];
 		}
 		
 	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {

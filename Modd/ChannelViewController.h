@@ -10,7 +10,11 @@
 
 #import "ChannelVO.h"
 
-@interface ChannelViewController : UIViewController <UIGestureRecognizerDelegate, UIScrollViewDelegate, UITextFieldDelegate>
+typedef NS_ENUM(NSUInteger, ChannelAlertViewType) {
+	ChannelAlertViewTypeInvite = 0
+};
+
+@interface ChannelViewController : UIViewController <UIAlertViewDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate, UITextFieldDelegate>
 - (id)initFromDeepLinkWithChannelName:(NSString *)channelName;
 - (id)initWithChannel:(ChannelVO *)channelVO;
 - (id)initWithChannel:(ChannelVO *)channelVO asTwitchUser:(NSDictionary *)twitchUser;

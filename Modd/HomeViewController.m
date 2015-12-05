@@ -21,7 +21,6 @@
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UIButton *composeButton;
-@property (nonatomic, strong) UIImageView *tutorialImageView;
 @property (nonatomic, strong) NSArray *channelNames;
 @property (nonatomic, strong) UIView *loadingView;
 @property (nonatomic, strong) PaginationView *paginationView;
@@ -99,11 +98,11 @@
 	tutorial2ImageView.frame = CGRectOffset(tutorial2ImageView.frame, _scrollView.frame.size.width, 0.0);
 	[_scrollView addSubview:tutorial2ImageView];
 	
-	UIImageView *brandingImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"brandingHeader"]];
-	brandingImageView.frame = CGRectOffset(brandingImageView.frame, (_scrollView.frame.size.width * 2.0) + (self.view.frame.size.width - brandingImageView.frame.size.width) * 0.5, 9.0);
+	UIImageView *brandingImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navHeaderBackground"]];
+	brandingImageView.frame = CGRectOffset(brandingImageView.frame, (_scrollView.frame.size.width * 2.0) + (self.view.frame.size.width - brandingImageView.frame.size.width) * 0.5, 0.0);
 	[_scrollView addSubview:brandingImageView];
 	
-	_tableView = [[UITableView alloc] initWithFrame:CGRectMake(_scrollView.frame.size.width * 2.0, 54.0, _scrollView.frame.size.width, _scrollView.frame.size.height - 54.0) style:UITableViewStylePlain];
+	_tableView = [[UITableView alloc] initWithFrame:CGRectMake(_scrollView.frame.size.width * 2.0, 49.0, _scrollView.frame.size.width, _scrollView.frame.size.height - 49.0) style:UITableViewStylePlain];
 	_tableView.backgroundColor = [UIColor whiteColor];
 	_tableView.contentInset = UIEdgeInsetsMake(0.0, 0.0, _composeButton.frame.size.height, 0.0);
 	_tableView.delegate = self;
@@ -121,17 +120,6 @@
 	_paginationView = [[PaginationView alloc] initAtPosition:CGPointMake(_scrollView.frame.size.width * 0.5, self.view.frame.size.height - 40.0) withTotalPages:3 usingDiameter:7.0 andPadding:10.0];
 	[_paginationView updateToPage:0];
 	[self.view addSubview:_paginationView];
-	
-	_tutorialImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"createTutorial"]];
-	_tutorialImageView.frame = CGRectOffset(_tutorialImageView.frame, 0.0, (_scrollView.frame.size.height + 9.0) - (_composeButton.frame.size.height + _tutorialImageView.frame.size.height));
-	_tutorialImageView.hidden = YES;
-	_tutorialImageView.alpha = 0.0;
-	
-	if (![[NSUserDefaults standardUserDefaults] objectForKey:@"home_tutorial"])
-		[self.view addSubview:_tutorialImageView];
-	
-	[[NSUserDefaults standardUserDefaults] setObject:@"YES" forKey:@"home_tutorial"];
-	[[NSUserDefaults standardUserDefaults] synchronize];
 	
 	[self _retrieveChannels];
 }
@@ -205,7 +193,7 @@
 
 #pragma mark - TableView Delegates
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-	return (74.0);
+	return (54.0);
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
@@ -255,18 +243,15 @@
 		if (scrollView.contentOffset.x < scrollView.contentSize.width - scrollView.frame.size.width) {
 			if (_composeButton.frame.origin.y == scrollView.frame.size.height - _composeButton.frame.size.height) {
 				[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseOut) animations:^(void) {
-					_tutorialImageView.alpha = 0.0;
-					
 					_composeButton.alpha = 0.0;
 //					_composeButton.frame = CGRectTranslateY(_composeButton.frame, scrollView.frame.size.height);
 				} completion:^(BOOL finished) {
-					_tutorialImageView.hidden = YES;
 				}];
 			}
 			
 			if (_paginationView.frame.origin.y == (self.view.frame.size.height - 40.0) - (_composeButton.frame.size.height + 10.0)) {
 				[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
-					_paginationView.frame = CGRectTranslateY(_paginationView.frame, self.view.frame.size.height - 40.0);
+					//_paginationView.frame = CGRectTranslateY(_paginationView.frame, self.view.frame.size.height - 40.0);
 					_paginationView.alpha = 1.0;
 				} completion:^(BOOL finished) {
 				}];
@@ -304,19 +289,13 @@
 					_composeButton.alpha = 1.0;
 //					_composeButton.frame = CGRectTranslateY(_composeButton.frame, scrollView.frame.size.height - _composeButton.frame.size.height);
 				} completion:^(BOOL finished) {
-					_tutorialImageView.alpha = 0.0;
-					_tutorialImageView.hidden = NO;
-					[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
-						_tutorialImageView.alpha = 1.0;
-					} completion:^(BOOL finished) {
-					}];
 				}];
 			}
 			
 			if (_paginationView.frame.origin.y == self.view.frame.size.height - 40.0) {
 				[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
 					_paginationView.alpha = 0.0;
-					_paginationView.frame = CGRectTranslateY(_paginationView.frame, (self.view.frame.size.height - 40.0) - (_composeButton.frame.size.height + 10.0));
+					//_paginationView.frame = CGRectTranslateY(_paginationView.frame, (self.view.frame.size.height - 40.0) - (_composeButton.frame.size.height + 10.0));
 				} completion:^(BOOL finished) {
 				}];
 			}
@@ -341,12 +320,6 @@
 //					_composeButton.frame = CGRectTranslateY(_composeButton.frame, scrollView.frame.size.height - _composeButton.frame.size.height);
 					
 				} completion:^(BOOL finished) {
-					_tutorialImageView.alpha = 0.0;
-					_tutorialImageView.hidden = NO;
-					[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
-						_tutorialImageView.alpha = 1.0;
-					} completion:^(BOOL finished) {
-					}];
 				}];
 			}
 			
@@ -376,10 +349,10 @@
 			
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.125 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void) {
 				[_loadingView removeFromSuperview];
-				[_tutorialImageView removeFromSuperview];
 			});
 		
 		} else if (buttonIndex == 1) {
+			//Accept: application/vnd.twitchtv.v3+json
 			AuthViewController *authViewController =[[AuthViewController alloc] initWithURL:@"https://api.twitch.tv/kraken/oauth2/authenticate?action=authorize&client_id=tocdw659phzca4ewk9yhm8n50rz8l4l&redirect_uri=modd%3A%2F%2Fauth%2F&response_type=token&scope=channel_read+channel_subscriptions+chat_login" title:@"Login"];
 			[authViewController setTwitchName:[channnelDict objectForKey:@"title"]];
 			authViewController.delegate = self;
