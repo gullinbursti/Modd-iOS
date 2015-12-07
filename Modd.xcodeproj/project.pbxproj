@@ -46,7 +46,7 @@
 		4C45C1861C0A557800F6F12D /* CouchbaseEvents.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C45C1851C0A557800F6F12D /* CouchbaseEvents.m */; };
 		4C45C1891C0A588500F6F12D /* CBObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C45C1881C0A588500F6F12D /* CBObjects.m */; };
 		4C45C18C1C0A741B00F6F12D /* TwitchKit.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4C45C18A1C0A741B00F6F12D /* TwitchKit.bundle */; };
-		4C45C1921C0D1B0100F6F12D /* HONWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C45C1911C0D1B0100F6F12D /* HONWebViewController.m */; };
+		4C45C1921C0D1B0100F6F12D /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C45C1911C0D1B0100F6F12D /* WebViewController.m */; };
 		4C45C1951C0EAC8800F6F12D /* AuthViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C45C1941C0EAC8800F6F12D /* AuthViewController.m */; };
 		4C9581721C1267E100F7A25F /* NSArray+Modd.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C95815B1C1267E100F7A25F /* NSArray+Modd.m */; };
 		4C9581731C1267E100F7A25F /* NSCharacterSet+Modd.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C95815D1C1267E100F7A25F /* NSCharacterSet+Modd.m */; };
@@ -173,8 +173,8 @@
 		4C45C1871C0A588500F6F12D /* CBObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBObjects.h; sourceTree = "<group>"; };
 		4C45C1881C0A588500F6F12D /* CBObjects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBObjects.m; sourceTree = "<group>"; };
 		4C45C18A1C0A741B00F6F12D /* TwitchKit.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = TwitchKit.bundle; sourceTree = "<group>"; };
-		4C45C1901C0D1B0100F6F12D /* HONWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HONWebViewController.h; sourceTree = "<group>"; };
-		4C45C1911C0D1B0100F6F12D /* HONWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HONWebViewController.m; sourceTree = "<group>"; };
+		4C45C1901C0D1B0100F6F12D /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
+		4C45C1911C0D1B0100F6F12D /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
 		4C45C1931C0EAC8800F6F12D /* AuthViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthViewController.h; sourceTree = "<group>"; };
 		4C45C1941C0EAC8800F6F12D /* AuthViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthViewController.m; sourceTree = "<group>"; };
 		4C95815A1C1267E100F7A25F /* NSArray+Modd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Modd.h"; sourceTree = "<group>"; };
@@ -555,8 +555,8 @@
 		4CE5E1521BFD089200E0035A /* Abstracts */ = {
 			isa = PBXGroup;
 			children = (
-				4C45C1901C0D1B0100F6F12D /* HONWebViewController.h */,
-				4C45C1911C0D1B0100F6F12D /* HONWebViewController.m */,
+				4C45C1901C0D1B0100F6F12D /* WebViewController.h */,
+				4C45C1911C0D1B0100F6F12D /* WebViewController.m */,
 				4C04EA741BFEA52400952B61 /* Button.h */,
 				4C04EA751BFEA52400952B61 /* Button.m */,
 				4CE5E1681BFD401200E0035A /* PaginationView.h */,
@@ -848,7 +848,7 @@
 				4C04EA6A1BFD950B00952B61 /* AFImageRequestOperation.m in Sources */,
 				4C45C1891C0A588500F6F12D /* CBObjects.m in Sources */,
 				4C04EA6D1BFD950B00952B61 /* AFPropertyListRequestOperation.m in Sources */,
-				4C45C1921C0D1B0100F6F12D /* HONWebViewController.m in Sources */,
+				4C45C1921C0D1B0100F6F12D /* WebViewController.m in Sources */,
 				4C04EA6B1BFD950B00952B61 /* AFJSONRequestOperation.m in Sources */,
 				4C95817B1C1267E100F7A25F /* UIScrollView+Modd.m in Sources */,
 				4C95817C1C1267E100F7A25F /* UIView+Modd.m in Sources */,

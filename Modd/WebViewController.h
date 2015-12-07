@@ -1,5 +1,5 @@
 //
-//  HONWebViewController.h
+//  WebViewController.h
 //  Modd
 //
 //  Created on 03.26.13.
@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface HONWebViewController : UIViewController <UIWebViewDelegate>
+@interface WebViewController : UIViewController <UIWebViewDelegate>
 - (id)initWithURL:(NSString *)url title:(NSString *)title;
 
 - (void)_goClose;

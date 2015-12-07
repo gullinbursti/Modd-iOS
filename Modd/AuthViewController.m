@@ -8,6 +8,7 @@
 
 #import "AFNetworking.h"
 
+#import "Button.h"
 #import "AuthViewController.h"
 
 @interface AuthViewController ()
@@ -30,6 +31,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+	
+	Button *backButton = [Button buttonWithType:UIButtonTypeCustom];
+	[backButton setBackgroundImage:[UIImage imageNamed:@"backButton_nonActive"] forState:UIControlStateNormal];
+	[backButton setBackgroundImage:[UIImage imageNamed:@"backButton_Active"] forState:UIControlStateHighlighted];
+	backButton.frame = CGRectOffset(backButton.frame, 0.0, 15.0);
+	[backButton addTarget:self action:@selector(_goBack) forControlEvents:UIControlEventTouchUpInside];
+	[self.view addSubview:backButton];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -41,6 +49,14 @@
 - (void)setTwitchName:(NSString *)twitchName {
 	_twitchName = twitchName;
 }
+
+
+#pragma mark - Navigation
+- (void)_goBack {
+	[self.navigationController dismissViewControllerAnimated:YES completion:^(void) {
+	}];
+}
+
 
 #pragma mark - WebView Delegates
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {

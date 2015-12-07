@@ -6,14 +6,14 @@
 //  Copyright © 2015. All rights reserved.
 //
 
-#import "HONWebViewController.h"
+#import "WebViewController.h"
 
 @class AuthViewController;
 @protocol AuthViewControllerDelegate <NSObject>
 - (void)authViewController:(AuthViewController *)viewController didAuthAsOwner:(NSDictionary *)twitchUser;
 @end
 
-@interface AuthViewController : HONWebViewController <UIAlertViewDelegate>
+@interface AuthViewController : WebViewController <UIAlertViewDelegate>
 - (id)initWithTwitchOwner:(int)twitchID;
 
 @property (nonatomic, retain) NSString *twitchName;

@@ -1,18 +1,18 @@
 //
-//  HONWebViewController.m
+//  WebViewController.m
 //  Modd
 //
 //  Created on 03.26.13.
 //  Copyright (c) 2013. All rights reserved.
 //
 
-#import "HONWebViewController.h"
+#import "WebViewController.h"
 
-@interface HONWebViewController ()
+@interface WebViewController ()
 @property (nonatomic, strong) UIWebView *webView;
 @end
 
-@implementation HONWebViewController
+@implementation WebViewController
 @synthesize headerTitle = _headerTitle;
 @synthesize url = _url;
 
@@ -56,7 +56,7 @@
 	[super loadView];
 	self.view.backgroundColor = [UIColor colorWithRed:0.141 green:0.145 blue:0.165 alpha:1.00];
 	
-	_webView = [[UIWebView alloc] initWithFrame:CGRectMake(0.0, 49.0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height - 49.0)];
+	_webView = [[UIWebView alloc] initWithFrame:CGRectMake(0.0, 29.0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height - 29.0)];
 	[_webView setBackgroundColor:[UIColor clearColor]];
 	_webView.delegate = self;
 	[_webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:_url]]];
