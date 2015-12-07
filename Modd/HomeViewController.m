@@ -7,6 +7,7 @@
 //
 
 #import "StaticInlines.h"
+#import "FontAllocator.h"
 
 #import "AFNetworking.h"
 
@@ -79,7 +80,6 @@
 	[super viewDidLoad];
 	
 	_scrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
-	_scrollView.backgroundColor = [UIColor colorWithRed:0.396 green:0.596 blue:0.922 alpha:1.00];
 	_scrollView.backgroundColor = [UIColor colorWithRed:0.400 green:0.839 blue:0.698 alpha:1.00];
 	_scrollView.contentSize = CGSizeMake(_scrollView.frame.size.width * 3.0, _scrollView.frame.size.height);
 	_scrollView.contentInset = UIEdgeInsetsZero;
@@ -117,7 +117,7 @@
 	[_composeButton addTarget:self action:@selector(_goCompose) forControlEvents:UIControlEventTouchUpInside];
 	[self.view addSubview:_composeButton];
 	
-	_paginationView = [[PaginationView alloc] initAtPosition:CGPointMake(_scrollView.frame.size.width * 0.5, self.view.frame.size.height - 40.0) withTotalPages:3 usingDiameter:7.0 andPadding:10.0];
+	_paginationView = [[PaginationView alloc] initAtPosition:CGPointMake(_scrollView.frame.size.width * 0.5, self.view.frame.size.height - 26.0) withTotalPages:3 usingDiameter:7.0 andPadding:10.0];
 	[_paginationView updateToPage:0];
 	[self.view addSubview:_paginationView];
 	
@@ -126,7 +126,6 @@
 
 - (void)didReceiveMemoryWarning {
 	[super didReceiveMemoryWarning];
-	
 }
 
 
@@ -180,12 +179,12 @@
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
 	UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"tableHeaderBG"]];
 	
-	//	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(12.0, 4.0, tableView.frame.size.width - 30.0, 15.0)];
-	//	label.font = [[[HONFontAllocator sharedInstance] avenirHeavy] fontWithSize:13];
-	//	label.backgroundColor = [UIColor clearColor];
-	//	label.textColor = [[HONColorAuthority sharedInstance] honGreyTextColor];
-	//	label.text = (section == 0) ? @"Recent" : @"Older";
-	//	[imageView addSubview:label];
+	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(7.0, 7.0, tableView.frame.size.width - 30.0, 9.0)];
+	label.font = [[[FontAllocator sharedInstance] helveticaNeueFontRegular] fontWithSize:9];
+	label.backgroundColor = [UIColor clearColor];
+	label.textColor = [UIColor grayColor];
+	label.text = @"SELECT PLAYER";
+	[imageView addSubview:label];
 	
 	return (imageView);
 }
@@ -197,7 +196,6 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-	return (0.0);
 	return ([[UIImageView alloc] initWithImage:[UIImage imageNamed:@"tableHeaderBG"]].frame.size.height);
 }
 
@@ -211,7 +209,7 @@
 	
 	
 	//[[HONAnalyticsReporter sharedInstance] trackEvent:[kAnalyticsCohort stringByAppendingString:@" - joinPopup"] withProperties:@{@"channel"	: @"e23d61a9-622c-45c1-b92e-fd7c5d586b3a_1438284321"}];
-		
+	
 	_loadingView = [[UIView alloc] initWithFrame:self.view.frame];
 	_loadingView.backgroundColor = [UIColor	colorWithRed:0.839 green:0.729 blue:0.400 alpha:1.00];
 	//[self.view addSubview:_loadingView];
@@ -241,21 +239,13 @@
 			[scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, scrollView.contentSize.height - scrollView.frame.size.height)];
 		
 		if (scrollView.contentOffset.x < scrollView.contentSize.width - scrollView.frame.size.width) {
-			if (_composeButton.frame.origin.y == scrollView.frame.size.height - _composeButton.frame.size.height) {
-				[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseOut) animations:^(void) {
-					_composeButton.alpha = 0.0;
-//					_composeButton.frame = CGRectTranslateY(_composeButton.frame, scrollView.frame.size.height);
-				} completion:^(BOOL finished) {
-				}];
-			}
-			
-			if (_paginationView.frame.origin.y == (self.view.frame.size.height - 40.0) - (_composeButton.frame.size.height + 10.0)) {
+			//if (_paginationView.frame.origin.y == (self.view.frame.size.height - 40.0) - (_composeButton.frame.size.height + 10.0)) {
 				[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
 					//_paginationView.frame = CGRectTranslateY(_paginationView.frame, self.view.frame.size.height - 40.0);
 					_paginationView.alpha = 1.0;
 				} completion:^(BOOL finished) {
 				}];
-			}
+			//}
 			
 		} else if (scrollView.contentOffset.x >= scrollView.contentSize.width - scrollView.frame.size.width) {
 			scrollView.scrollEnabled = NO;
@@ -284,21 +274,13 @@
 				[[NSUserDefaults standardUserDefaults] synchronize];
 			}
 			
-			if (_composeButton.frame.origin.y == scrollView.frame.size.height) {
-				[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
-					_composeButton.alpha = 1.0;
-//					_composeButton.frame = CGRectTranslateY(_composeButton.frame, scrollView.frame.size.height - _composeButton.frame.size.height);
-				} completion:^(BOOL finished) {
-				}];
-			}
-			
-			if (_paginationView.frame.origin.y == self.view.frame.size.height - 40.0) {
+			//if (_paginationView.frame.origin.y == self.view.frame.size.height - 40.0) {
 				[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
 					_paginationView.alpha = 0.0;
-					//_paginationView.frame = CGRectTranslateY(_paginationView.frame, (self.view.frame.size.height - 40.0) - (_composeButton.frame.size.height + 10.0));
+	
 				} completion:^(BOOL finished) {
 				}];
-			}
+			//}
 			
 		} else if (scrollView.contentOffset.x < scrollView.contentSize.width - scrollView.frame.size.width) {
 		}
@@ -359,8 +341,7 @@
 			
 			UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:authViewController];
 			[navigationController setNavigationBarHidden:YES];
-			[self presentViewController:navigationController animated:YES completion:nil];			
-			
+			[self presentViewController:navigationController animated:YES completion:nil];
 		}
 	}
 }

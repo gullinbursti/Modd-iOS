@@ -19,6 +19,7 @@
 #import "UIView+Modd.h"
 #import "NSDate+Modd.h"
 
+#import "AFNetworking.h"
 #import "PBJVision.h"
 #import "PBJVisionUtilities.h"
 
@@ -170,6 +171,28 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	}];
 }
 
+- (void)_retrieveStream {
+	NSLog(@"_/:[%@]—//%@> (%@/%@) %@\n\n", [[self class] description], @"GET", @"https://api.twitch.tv/kraken", @"streams", @{@"channel"	: [[_channelVO.dictionary objectForKey:@"title"] lowercaseString]});
+	AFHTTPClient *httpClient2 = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:@"https://api.twitch.tv/kraken"]];
+	[httpClient2 getPath:@"streams" parameters:@{@"channel"	: [[_channelVO.dictionary objectForKey:@"title"] lowercaseString]} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+		NSError *error = nil;
+		NSDictionary *result = [NSJSONSerialization JSONObjectWithData:responseObject options:0 error:&error];
+		
+		if (error != nil) {
+			NSLog(@"AFNetworking [-] %@: (%@) - Failed to parse JSON: %@", [[self class] description], [[operation request] URL], [error localizedFailureReason]);
+			
+		} else {
+			NSLog(@"AFNetworking [-] %@ |[:]>> RESULT [:]|>>\n%@", [[self class] description], result);
+			if ([[result objectForKey:@"_total"] intValue] > 0) {
+				_titleLabel.text = [_titleLabel.text stringByAppendingFormat:@" / %@", [[[[result objectForKey:@"streams"] firstObject] objectForKey:@"channel"] objectForKey:@"game"]];
+			}
+		}
+		
+	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+		NSLog(@"AFNetworking [-] %@: (%@) Failed Request - (%d) %@", [[self class] description], [[operation request] URL], (int)[operation response].statusCode, [error localizedDescription]);
+	}];
+}
+
 - (void)_channelSetup {
 	_participants = 0;
 	
@@ -195,7 +218,7 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 								NSLog(@"PARTICIPANTS:[%d]", (int)[result.data.uuids count]);
 								
 								_participants = (int)[result.data.uuids count];
-								_participantsLabel.text = [NSString stringWithFormat:@"Online with %d other%@", MAX(0, _participants - 1), (MAX(0, _participants - 1) == 1) ? @"" : @"s"];
+								_participantsLabel.text = [NSString stringWithFormat:@"• Online with %d other%@", MAX(0, _participants - 1), (MAX(0, _participants - 1) == 1) ? @"" : @"s"];
 								
 								if (_participants > 1) {
 									_expireLabel.text = [NSString stringWithFormat:@"Alerting… %d %@", MAX(0, _participants - 1), ((_participants - 1) == 1) ? @"person" : @"people"];
@@ -507,7 +530,7 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	
 	
 	UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
-														message:@"Want to share [channel name] with your friends?"
+														message:[NSString stringWithFormat:@"Want to share %@ with your friends?", [_channelVO.dictionary objectForKey:@"title"]]
 													   delegate:self
 											  cancelButtonTitle:@"Yes"
 											  otherButtonTitles:@"Cancel", nil];
@@ -619,19 +642,14 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	[_cameraPreviewView.layer addSublayer:_cameraPreviewLayer];
 	[self.view addSubview:_cameraPreviewView];
 	
+	_finaleTintView = [[UIView alloc] initWithFrame:self.view.frame];
+	_finaleTintView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.60];
+	_finaleTintView.alpha = 0.0;
+	[self.view addSubview:_finaleTintView];
+	
 	_commentFooterImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"commentInputDnBG"]];
 	_commentFooterImageView.userInteractionEnabled = YES;
 	_commentFooterImageView.frame = CGRectOffset(_commentFooterImageView.frame, 0.0, self.view.frame.size.height - _commentFooterImageView.frame.size.height);
-	
-	Button *submitCommentButton = [Button buttonWithType:UIButtonTypeCustom];
-	submitCommentButton.frame = CGRectMake(_commentFooterImageView.frame.size.width - 65.0, 8.0, 50.0, 34.0);
-	[submitCommentButton setBackgroundImage:[UIImage imageNamed:@"commentButton_nonActive"] forState:UIControlStateNormal];
-	[submitCommentButton setBackgroundImage:[UIImage imageNamed:@"commentButton_Active"] forState:UIControlStateHighlighted];
-	[submitCommentButton setBackgroundImage:[UIImage imageNamed:@"commentButton_nonActive"] forState:UIControlStateDisabled];
-	[submitCommentButton addTarget:self action:@selector(_goTextComment) forControlEvents:UIControlEventTouchUpInside];
-	submitCommentButton.hidden = YES;
-	[_commentFooterImageView addSubview:submitCommentButton];
-	
 	
 	_scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0.0, _channelHeaderView.frameEdges.bottom, self.view.frame.size.width, self.view.frame.size.height - (_channelHeaderView.frameEdges.bottom + 60.0 + [UIApplication sharedApplication].statusBarFrame.size.height))];
 	_scrollView.contentSize = CGSizeMake(_scrollView.frame.size.width, 0.0);
@@ -660,24 +678,24 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	Button *retakeButton = [Button buttonWithType:UIButtonTypeCustom];
 	[retakeButton setBackgroundImage:[UIImage imageNamed:@"backButton_nonActive"] forState:UIControlStateNormal];
 	[retakeButton setBackgroundImage:[UIImage imageNamed:@"backButton_Active"] forState:UIControlStateHighlighted];
-	retakeButton.frame = CGRectOffset(retakeButton.frame, 4.0, 26.0);
+	retakeButton.frame = CGRectOffset(retakeButton.frame, 0.0, 20.0);
 	[retakeButton addTarget:self action:@selector(_goRetake) forControlEvents:UIControlEventTouchUpInside];
 	[_finaleTintView addSubview:retakeButton];
 	
 	_submitButton = [Button buttonWithType:UIButtonTypeCustom];
 	[_submitButton setBackgroundImage:[UIImage imageNamed:@"submitCameraButton_nonActive"] forState:UIControlStateNormal];
 	[_submitButton setBackgroundImage:[UIImage imageNamed:@"submitCameraButton_Active"] forState:UIControlStateHighlighted];
-	_submitButton.frame = CGRectOffset(_submitButton.frame, (self.view.frame.size.width - _submitButton.frame.size.width) - 10.0, 25.0);
+	_submitButton.frame = CGRectOffset(_submitButton.frame, (self.view.frame.size.width - _submitButton.frame.size.width) - 10.0, 20.0);
 	[_submitButton addTarget:self action:@selector(_goSubmit) forControlEvents:UIControlEventTouchUpInside];
 	_submitButton.hidden = YES;
 	[_finaleTintView addSubview:_submitButton];
-	
-	[self.view addSubview:_commentFooterImageView];
 	
 	_commentToggleButton = [Button buttonWithType:UIButtonTypeCustom];
 	_commentToggleButton.frame = self.view.frame;
 	[_commentToggleButton addTarget:self action:@selector(_goOpenComment) forControlEvents:UIControlEventTouchUpInside];
 	[self.view addSubview:_commentToggleButton];
+	
+	[self.view addSubview:_commentFooterImageView];
 	
 //	_bubbleView = [[UIView alloc] initWithFrame:CGRectMake(_openCommentButton.frame.origin.x - 1.0, _openCommentButton.frame.origin.y - 3.0, 20.0, 20.0)];
 //	_bubbleView.layer.cornerRadius = 10;
@@ -699,24 +717,24 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	Button *backButton = [Button buttonWithType:UIButtonTypeCustom];
 	[backButton setBackgroundImage:[UIImage imageNamed:@"backButton_nonActive"] forState:UIControlStateNormal];
 	[backButton setBackgroundImage:[UIImage imageNamed:@"backButton_Active"] forState:UIControlStateHighlighted];
-	backButton.frame = CGRectOffset(backButton.frame, 4.0, 6.0);
+	backButton.frame = CGRectOffset(backButton.frame, 0.0, 0.0);
 	[backButton addTarget:self action:@selector(_goBack) forControlEvents:UIControlEventTouchUpInside];
 	[_channelHeaderView addSubview:backButton];
 	
-	_titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((_channelHeaderView.frame.size.width - 200.0) * 0.5, 8.0, 200.0, 16.0)];
-	_titleLabel.font = [[[FontAllocator sharedInstance] helveticaNeueFontRegular] fontWithSize:16];
+	_titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((_channelHeaderView.frame.size.width - 250.0) * 0.5, 6.0, 250.0, 16.0)];
+	_titleLabel.font = [[[FontAllocator sharedInstance] helveticaNeueFontRegular] fontWithSize:13];
 	_titleLabel.backgroundColor = [UIColor clearColor];
 	_titleLabel.textAlignment = NSTextAlignmentCenter;
 	_titleLabel.textColor = [UIColor whiteColor];
-	_titleLabel.text = [NSString stringWithFormat:@"%@ / %@", [_channelVO.dictionary objectForKey:@"title"], [_channelVO.dictionary objectForKey:@"game"]];
+	_titleLabel.text = [_channelVO.dictionary objectForKey:@"title"];
 	[_channelHeaderView addSubview:_titleLabel];
 	
-	_participantsLabel = [[UILabel alloc] initWithFrame:CGRectMake((_channelHeaderView.frame.size.width - 250.0) * 0.5, 28.0, 250.0, 12.0)];
+	_participantsLabel = [[UILabel alloc] initWithFrame:CGRectMake((_channelHeaderView.frame.size.width - 250.0) * 0.5, 34.0, 250.0, 12.0)];
 	_participantsLabel.font = [[[FontAllocator sharedInstance] helveticaNeueFontRegular] fontWithSize:12];
 	_participantsLabel.backgroundColor = [UIColor clearColor];
 	_participantsLabel.textAlignment = NSTextAlignmentCenter;
 	_participantsLabel.textColor = [UIColor greenColor];
-	_participantsLabel.text = @"Online with 0 others";
+	_participantsLabel.text = @"• Online with 0 others";
 	[_channelHeaderView addSubview:_participantsLabel];
 	
 	
@@ -742,7 +760,7 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	_likeButton.frame = CGRectMake(0.0, 0.0, 44.0, 44.0);
 	[_likeButton setBackgroundImage:[UIImage imageNamed:@"likeButton_nonActive"] forState:UIControlStateNormal];
 	[_likeButton setBackgroundImage:[UIImage imageNamed:@"likeButton_Active"] forState:UIControlStateHighlighted];
-	_likeButton.frame = CGRectOffset(_likeButton.frame, (self.view.frame.size.width - _likeButton.frame.size.width) - 8.0, (self.view.frame.size.height - _likeButton.frame.size.height) - 55.0);
+	_likeButton.frame = CGRectOffset(_likeButton.frame, (self.view.frame.size.width - _likeButton.frame.size.width) - 3.0, (self.view.frame.size.height - _likeButton.frame.size.height) - 40.0);
 	[_likeButton addTarget:self action:@selector(_goLike) forControlEvents:UIControlEventTouchUpInside];
 	_likeButton.enabled = NO;
 	[self.view addSubview:_likeButton];
@@ -752,7 +770,7 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 		_cameraFlipButton.frame = CGRectMake(0.0, 0.0, 44.0, 44.0);
 		[_cameraFlipButton setBackgroundImage:[UIImage imageNamed:@"cameraFlipButton_nonActive"] forState:UIControlStateNormal];
 		[_cameraFlipButton setBackgroundImage:[UIImage imageNamed:@"cameraFlipButton_Active"] forState:UIControlStateHighlighted];
-		_cameraFlipButton.frame = CGRectOffset(_cameraFlipButton.frame, (_channelHeaderView.frame.size.width - _cameraFlipButton.frame.size.width) - 7.0, 7.0);
+		_cameraFlipButton.frame = CGRectOffset(_cameraFlipButton.frame, (_channelHeaderView.frame.size.width - _cameraFlipButton.frame.size.width) - 2.0, 0.0);
 		[_cameraFlipButton addTarget:self action:@selector(_goFlipCamera) forControlEvents:UIControlEventTouchUpInside];
 		_cameraFlipButton.enabled = NO;
 		[_channelHeaderView addSubview:_cameraFlipButton];
@@ -761,8 +779,7 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 		_takePhotoButton.frame = CGRectMake(0.0, 0.0, 72.0, 72.0);
 		[_takePhotoButton setBackgroundImage:[UIImage imageNamed:@"takePhotoButton_nonActive"] forState:UIControlStateNormal];
 		[_takePhotoButton setBackgroundImage:[UIImage imageNamed:@"takePhotoButton_Active"] forState:UIControlStateHighlighted];
-		//_takePhotoButton.frame = CGRectOffset(_takePhotoButton.frame, 6.0 + (self.view.frame.size.width * 0.5), (self.view.frame.size.height - _takePhotoButton.frame.size.height) - 55.0);
-		_takePhotoButton.frame = CGRectOffset(_takePhotoButton.frame, (self.view.frame.size.width - _takePhotoButton.frame.size.width) * 0.5, (self.view.frame.size.height - _takePhotoButton.frame.size.height) - 55.0);
+		_takePhotoButton.frame = CGRectOffset(_takePhotoButton.frame, (self.view.frame.size.width - _takePhotoButton.frame.size.width) * 0.5, (self.view.frame.size.height - _takePhotoButton.frame.size.height) - 53.0);
 		[_takePhotoButton addTarget:self action:@selector(_goImageComment) forControlEvents:UIControlEventTouchUpInside];
 		_takePhotoButton.enabled = NO;
 		[self.view addSubview:_takePhotoButton];
@@ -771,7 +788,7 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	_commentsHolderView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, _scrollView.frame.size.width, 0.0)];
 	[_scrollView addSubview:_commentsHolderView];
 	
-	_commentTextField = [[UITextField alloc] initWithFrame:CGRectMake(12.0, 16.0, _commentsHolderView.frame.size.width - 100.0, 23.0)];
+	_commentTextField = [[UITextField alloc] initWithFrame:CGRectMake(12.0, 8.0, _commentsHolderView.frame.size.width - 100.0, 23.0)];
 	_commentTextField.backgroundColor = [UIColor clearColor];
 	[_commentTextField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
 	[_commentTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
@@ -782,10 +799,18 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	[_commentTextField addTarget:self action:@selector(_onTextEditingDidEnd:) forControlEvents:UIControlEventEditingDidEnd];
 	_commentTextField.font = [[[FontAllocator sharedInstance] avenirHeavy] fontWithSize:20];
 	_commentTextField.keyboardType = UIKeyboardTypeDefault;
-	_commentTextField.placeholder = @"Enter message";
+	_commentTextField.placeholder = @"";
 	_commentTextField.text = @"";
 	_commentTextField.delegate = self;
 	[_commentFooterImageView addSubview:_commentTextField];
+	
+	Button *submitCommentButton = [Button buttonWithType:UIButtonTypeCustom];
+	[submitCommentButton setBackgroundImage:[UIImage imageNamed:@"commentButton_nonActive"] forState:UIControlStateNormal];
+	[submitCommentButton setBackgroundImage:[UIImage imageNamed:@"commentButton_Active"] forState:UIControlStateHighlighted];
+	[submitCommentButton setBackgroundImage:[UIImage imageNamed:@"commentButton_nonActive"] forState:UIControlStateDisabled];
+	submitCommentButton.frame = CGRectOffset(submitCommentButton.frame, (_commentFooterImageView.frame.size.width - submitCommentButton.frame.size.width) - 3.0, 1.0);
+	[submitCommentButton addTarget:self action:@selector(_goTextComment) forControlEvents:UIControlEventTouchUpInside];
+	[_commentFooterImageView addSubview:submitCommentButton];
 	
 	float scale = 0.5;
 	_previewImageView = [[UIImageView alloc] initWithFrame:CGRectMake((self.view.frame.size.width - (self.view.frame.size.width * scale)) * 0.5, (self.view.frame.size.height - (self.view.frame.size.height * scale)) * 0.5, self.view.frame.size.width * scale, self.view.frame.size.height * scale)];
@@ -820,6 +845,7 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	[self.view addGestureRecognizer:_lpGestureRecognizer];
 	
 	
+	[self _retrieveStream];
 	[self _channelSetup];
 	[self _setupCamera];
 	[[PBJVision sharedInstance] startPreview];
@@ -877,8 +903,6 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	_takePhotoButton.hidden = NO;
 	_previewImageView.hidden = YES;
 	
-	_takePhotoButton.frame = CGRectTranslateX(_takePhotoButton.frame, (self.view.frame.size.width - _takePhotoButton.frame.size.width) * 0.5);
-	
 	[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
 		_finaleTintView.alpha = 0.0;
 		
@@ -911,14 +935,15 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	_playerLayer.hidden = NO;
 	_expireLabel.hidden = NO;
 	_bubbleView.hidden = NO;
+	_scrollView.hidden = NO;
+	_likeButton.hidden = NO;
+	_commentFooterImageView.hidden = NO;
 	
 	_messengerButton.alpha = 1.0;
 	_messengerButton.hidden = NO;
 	
-	_takePhotoButton.alpha = 1.0;
 	[_takePhotoButton setBackgroundImage:[UIImage imageNamed:@"takePhotoButton_nonActive"] forState:UIControlStateNormal];
 	[_takePhotoButton setBackgroundImage:[UIImage imageNamed:@"takePhotoButton_Active"] forState:UIControlStateHighlighted];
-	_takePhotoButton.frame = CGRectTranslateX(_takePhotoButton.frame, 3.0 + (self.view.frame.size.width * 0.5));
 	_cancelCameraButton.hidden = YES;
 	
 //	[[HONAnalyticsReporter sharedInstance] trackEvent:[kAnalyticsCohort stringByAppendingString:@" - sendVideo"] withProperties:@{@"channel"	: _channelName,
@@ -947,6 +972,7 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	
 	_expireLabel.hidden = NO;
 	
+	_commentTextField.text = @"";
 	[_commentToggleButton removeTarget:self action:@selector(_goCancelComment) forControlEvents:UIControlEventTouchUpInside];
 	[_commentToggleButton addTarget:self action:@selector(_goOpenComment) forControlEvents:UIControlEventTouchUpInside];
 	
@@ -959,6 +985,8 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	[UIView animateWithDuration:0.25 animations:^(void) {
 		_messengerButton.alpha = 1.0;
 		_commentFooterImageView.frame = CGRectTranslateY(_commentFooterImageView.frame, self.view.frame.size.height - _commentFooterImageView.frame.size.height);
+		_likeButton.frame = CGRectTranslateY(_likeButton.frame, (self.view.frame.size.height - _likeButton.frame.size.height) - 40.0);
+		_takePhotoButton.frame = CGRectTranslateY(_takePhotoButton.frame, (self.view.frame.size.height - _takePhotoButton.frame.size.height) - 53.0);
 		[_scrollView setContentInset:UIEdgeInsetsMake(MAX(0.0, (_scrollView.frame.size.height - _commentsHolderView.frame.size.height)), _scrollView.contentInset.left, _scrollView.contentInset.bottom, _scrollView.contentInset.right)];
 	} completion:^(BOOL finished) {
 	}];
@@ -974,6 +1002,9 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	_cancelCameraButton.hidden = YES;
 	_previewImageView.hidden = YES;
 	_commentToggleButton.enabled = YES;
+	_scrollView.hidden = NO;
+	_likeButton.hidden = NO;
+	_commentFooterImageView.hidden = NO;
 	
 	[[PBJVision sharedInstance] stopPreview];
 	
@@ -992,11 +1023,9 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	_expireLabel.alpha = 0.0;
 	//	_expireLabel.frame = CGRectTranslateY(_expireLabel.frame, self.view.frame.size.height - 40.0);
 	
-	_takePhotoButton.alpha = 1.0;
 	_cameraPreviewView.frame = CGRectMake(0.0, self.view.frame.size.height * 1.0000, self.view.frame.size.width, self.view.frame.size.height);
 	[_takePhotoButton setBackgroundImage:[UIImage imageNamed:@"takePhotoButton_nonActive"] forState:UIControlStateNormal];
 	[_takePhotoButton setBackgroundImage:[UIImage imageNamed:@"takePhotoButton_Active"] forState:UIControlStateHighlighted];
-	_takePhotoButton.frame = CGRectTranslateX(_takePhotoButton.frame, 3.0 + (self.view.frame.size.width * 0.5));
 	_cancelCameraButton.hidden = YES;
 }
 
@@ -1013,11 +1042,16 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 }
 
 - (void)_goImageComment {
+	[self _goCancelComment];
+	
 	_finaleTintView.hidden = YES;
 	_channelHeaderView.hidden = YES;
 	_animationImageView.hidden = YES;
+	_scrollView.hidden = YES;
+	_likeButton.hidden = YES;
 	_messengerButton.hidden = YES;
 	_commentToggleButton.enabled = NO;
+	_commentFooterImageView.hidden = YES;
 	
 	[[PBJVision sharedInstance] startPreview];
 	
@@ -1026,12 +1060,11 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	
 	_expireLabel.alpha = 1.0;
 	_expireLabel.hidden = NO;
-	_expireLabel.text = @"Ready to record…";
+	_expireLabel.text = @"Ready…";
 	//_expireLabel.frame = CGRectTranslateY(_expireLabel.frame, (self.view.frame.size.height * 0.5) - 10.0);
 	
 	_playerLayer.hidden = YES;
 	
-	_cameraPreviewView.backgroundColor = [UIColor redColor];
 	_cameraPreviewView.frame = self.view.frame;
 	_cameraPreviewLayer.frame = CGRectFromSize(_cameraPreviewView.frame.size);
 	_cameraPreviewLayer.opacity = 1.0;
@@ -1039,7 +1072,6 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	_cancelCameraButton.hidden = NO;
 	[_takePhotoButton setBackgroundImage:[UIImage imageNamed:@"takePhotoButton_nonActive"] forState:UIControlStateNormal];
 	[_takePhotoButton setBackgroundImage:[UIImage imageNamed:@"takePhotoButton_Pressed"] forState:UIControlStateHighlighted];
-	_takePhotoButton.frame = CGRectTranslateX(_takePhotoButton.frame, (self.view.frame.size.width - _takePhotoButton.frame.size.width) * 0.5);
 }
 
 - (void)_goTextComment {
@@ -1133,6 +1165,7 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	_scrollView.hidden = NO;
 	//_scrollView.backgroundColor = [UIColor blueColor];
 	_scrollView.frame = CGRectResizeHeight(_scrollView.frame, self.view.frame.size.height - (_commentFooterImageView.frame.size.height + 216.0));
+	[_scrollView setContentOffset:CGPointMake(0.0, MAX(0.0, _scrollView.contentSize.height - _scrollView.frame.size.height)) animated:NO];
 	
 	if (textField.tag == 1) {
 		_cameraPreviewView.hidden = YES;
@@ -1143,7 +1176,6 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 		[[NSUserDefaults standardUserDefaults] setObject:@"YES" forKey:@"text"];
 		[[NSUserDefaults standardUserDefaults] synchronize];
 		
-		_commentTextField.placeholder = @"Type a message…";
 		_scrollView.hidden = NO;
 		
 	} else {
@@ -1155,6 +1187,8 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	[UIView animateWithDuration:0.25 animations:^(void) {
 		[_scrollView setContentInset:UIEdgeInsetsMake(MAX(0.0, (_scrollView.frame.size.height - _commentsHolderView.frame.size.height)), _scrollView.contentInset.left, _scrollView.contentInset.bottom, _scrollView.contentInset.right)];
 		_commentFooterImageView.frame = CGRectTranslateY(_commentFooterImageView.frame, self.view.frame.size.height - (_commentFooterImageView.frame.size.height + 216.0));
+		_likeButton.frame = CGRectTranslateY(_likeButton.frame, _likeButton.frame.origin.y - 216.0);
+		_takePhotoButton.frame = CGRectTranslateY(_takePhotoButton.frame, _takePhotoButton.frame.origin.y - 216.0);
 	} completion:^(BOOL finished) {
 	}];
 }
