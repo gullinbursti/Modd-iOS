@@ -20,6 +20,7 @@
 
 - (void)populateFields:(NSDictionary *)dictionary;
 
+@property (nonatomic, strong) ChannelVO *channelVO;
 @property (nonatomic, assign) id <HomeViewCellDelegate> delegate;
 
 @end

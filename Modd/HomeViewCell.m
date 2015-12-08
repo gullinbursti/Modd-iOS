@@ -15,7 +15,7 @@
 #import "HomeViewCell.h"
 #import "Button.h"
 
-@interface HomeViewCell ()
+@interface HomeViewCell () <HomeViewCellDelegate>
 @property (nonatomic, strong) UIImageView *onlineImageView;
 @property (nonatomic, strong) UIImageView *thumbImageView;
 @property (nonatomic, strong) Button *subscribeButton;
@@ -23,6 +23,7 @@
 
 @implementation HomeViewCell
 @synthesize delegate = _delegate;
+@synthesize channelVO = _channelVO;
 
 + (NSString *)cellReuseIdentifier {
 	return (NSStringFromClass(self));
@@ -83,7 +84,7 @@
 			NSLog(@"AFNetworking [-] %@: (%@) - Failed to parse JSON: %@", [[self class] description], [[operation request] URL], [error localizedFailureReason]);
 			
 		} else {
-			//NSLog(@"AFNetworking [-] %@ |[:]>> RESULT [:]|>>\n%@", [[self class] description], result);
+			NSLog(@"AFNetworking [-] %@ |[:]>> RESULT [:]|>>\n%@", [[self class] description], result);
 			int followers = [[result objectForKey:@"followers"] intValue];
 			int views = [[result objectForKey:@"views"] intValue];
 			
@@ -136,9 +137,15 @@
 }
 
 
+#pragma mark - Public
+- (void)setChannelVO:(ChannelVO *)channelVO {
+	_channelVO = channelVO;
+}
+
+
 #pragma mark - Navigation
 - (void)_goSubscribe {
 	if ([self.delegate respondsToSelector:@selector(homeViewCell:didSelectSubscribe:)])
-		[self.delegate homeViewCell:self didSelectSubscribe:nil];
+		[self.delegate homeViewCell:self didSelectSubscribe:_channelVO];
 }
 @end

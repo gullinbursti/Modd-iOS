@@ -10,7 +10,8 @@
 
 typedef NS_ENUM(NSUInteger, HomeActionSheetType) {
 	HomeActionSheetTypeTermsAgreement = 0,
-	HomeActionSheetTypeRowSelect
+	HomeActionSheetTypeRowSelect,
+	HomeActionSheetTypeSubscribe
 };
 
 typedef NS_ENUM(NSUInteger, HomeAlertViewType) {

@@ -9,6 +9,9 @@
 #import <AWSiOSSDKv2/AWSCore.h>
 
 #import "AFNetworking.h"
+#import "GAI.h"
+#import "GAIDictionaryBuilder.h"
+#import "GAIFields.h"
 
 #import "AppDelegate.h"
 #import "HomeViewController.h"
@@ -43,6 +46,26 @@
 	[AWSServiceManager defaultServiceManager].defaultServiceConfiguration = configuration;
 	
 	
+	id<GAITracker> tracker = [[GAI sharedInstance] trackerWithName:@"tracker"
+														trackingId:@"UA-71163202-1"];
+	
+	
+	[[NSUserDefaults standardUserDefaults] setObject:@"" forKey:@"in_chat"];
+	[[NSUserDefaults standardUserDefaults] synchronize];
+	
+	GAIDictionaryBuilder *builder = [GAIDictionaryBuilder createScreenView];
+	[builder set:@"start" forKey:kGAISessionControl];
+	[tracker set:kGAIScreenName value:@"Launch"];
+	[tracker send:[builder build]];
+	
+	
+	tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"App"
+														  action:@"Boot"
+														   label:@""
+														   value:@1] build]];
+	
+	
 	UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:[[HomeViewController alloc] init]];
 	[navigationController setNavigationBarHidden:YES];
 	
@@ -66,11 +89,23 @@
 	// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
 	// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 	
+	id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"App"
+														  action:@"Enter Background"
+														   label:@""
+														   value:@1] build]];
+	
 	[[NSNotificationCenter defaultCenter] postNotificationName:@"APP_ENTERING_BACKGROUND" object:nil];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
 	// Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+	
+	id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"App"
+														  action:@"Leave Background"
+														   label:@""
+														   value:@1] build]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:@"APP_LEAVING_BACKGROUND" object:nil];
 }

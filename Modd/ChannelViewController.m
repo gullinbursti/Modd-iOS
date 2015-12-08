@@ -20,6 +20,8 @@
 #import "NSDate+Modd.h"
 
 #import "AFNetworking.h"
+#import "GAI.h"
+#import "GAIDictionaryBuilder.h"
 #import "PBJVision.h"
 #import "PBJVisionUtilities.h"
 
@@ -132,6 +134,8 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	if ((self = [self initWithChannel:channelVO])) {
 		_channelName = [channelVO.dictionary objectForKey:@"channel"];
 		_isChannelOwner = YES;
+		
+		[_client subscribeToChannels:@[[twitchUser objectForKey:@"_id"]] withPresence:YES];
 	}
 	
 	return (self);
@@ -486,6 +490,14 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 		// event.data.subscribedChannel
 	}
 	NSLog(@"Did receive presence event: %@", event.data.presenceEvent);
+	
+	if ([event.data.presenceEvent isEqualToString:@"join"]) {
+		id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+		[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Channel"
+															  action:@"User Joined"
+															   label:[_channelVO.dictionary objectForKey:@"title"]
+															   value:@1] build]];
+	}
 }
 
 - (void)client:(PubNub *)client didReceiveStatus:(PNSubscribeStatus *)status {
@@ -849,6 +861,12 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 	[self _channelSetup];
 	[self _setupCamera];
 	[[PBJVision sharedInstance] startPreview];
+	
+	id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Channel"
+														  action:@"Loaded"
+														   label:[_channelVO.dictionary objectForKey:@"title"]
+														   value:@1] build]];
 
 }
 
@@ -865,6 +883,12 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 
 #pragma mark - Navigation
 - (void)_goBack {
+	id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Channel"
+														  action:@"Leave"
+														   label:[_channelVO.dictionary objectForKey:@"title"]
+														   value:@1] build]];
+	
 	[_focusTimer invalidate];
 	_focusTimer = nil;
 	
@@ -895,6 +919,12 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 }
 
 - (void)_goRetake {
+	id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Channel"
+														  action:@"Camera Retake"
+														   label:[_channelVO.dictionary objectForKey:@"title"]
+														   value:@1] build]];
+	
 	[_player setRate:0.0];
 	[_player seekToTime:CMTimeMake(0, 1)];
 	[_player pause];
@@ -912,6 +942,12 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 }
 
 - (void)_goSubmit {
+	id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Channel"
+														  action:@"Post Camera"
+														   label:[_channelVO.dictionary objectForKey:@"title"]
+														   value:@1] build]];
+	
 	[_player setRate:0.0];
 	[_player seekToTime:CMTimeMake(0, 1)];
 	[_player pause];
@@ -994,7 +1030,11 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 }
 
 - (void)_goFlipCamera {
-	
+	id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Channel"
+														  action:@"Flip Camera"
+														   label:[_channelVO.dictionary objectForKey:@"title"]
+														   value:@1] build]];
 }
 
 - (void)_goCancelCamera {
@@ -1030,6 +1070,12 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 }
 
 - (void)_goLike {
+	id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Channel"
+														  action:@"Like"
+														   label:[_channelVO.dictionary objectForKey:@"title"]
+														   value:@1] build]];
+	
 	[_client publish:_comment toChannel:@"user has requested you to record a Popup" mobilePushPayload:@{@"apns"	: @{@"aps"	: @{@"alert"	: @"user has requested you to record a Popup",
 																																@"sound"	: @"selfie_notification.aif",
 																																@"channel"	: _channelName}}} withCompletion:^(PNPublishStatus *status) {
@@ -1075,6 +1121,12 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 }
 
 - (void)_goTextComment {
+	id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Channel"
+														  action:@"Post Comment"
+														   label:[_channelVO.dictionary objectForKey:@"title"]
+														   value:@1] build]];
+	
 	_isSubmitting = YES;
 	
 	_comment = _commentTextField.text;
@@ -1090,6 +1142,11 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 		NSLog(@"TOUCH:%@", NSStringFromCGPoint(touchPoint));
 		
 		if (CGRectContainsPoint(_takePhotoButton.frame, touchPoint)) {
+			id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+			[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Channel"
+																  action:@"Start Record"
+																   label:[_channelVO.dictionary objectForKey:@"title"]
+																   value:@1] build]];
 			
 			if ([_commentTextField isFirstResponder])
 				[_commentTextField resignFirstResponder];
@@ -1139,6 +1196,11 @@ NSString * const kPubNubSecretKey = @"sec-c-YjE3MDczN2ItYTAyYS00MTAwLWI1N2ItZjY1
 		
 		NSLog(@"gestureRecognizer.state:[%@]", NSStringFromUIGestureRecognizerState(gestureRecognizer.state));
 		
+		id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+		[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Channel"
+															  action:@"Stop Record"
+															   label:[_channelVO.dictionary objectForKey:@"title"]
+															   value:@1] build]];
 		
 		[[PBJVision sharedInstance] endVideoCapture];
 		_takePhotoButton.hidden = YES;

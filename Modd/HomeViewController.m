@@ -10,6 +10,8 @@
 #import "FontAllocator.h"
 
 #import "AFNetworking.h"
+#import "GAI.h"
+#import "GAIDictionaryBuilder.h"
 
 #import "HomeViewController.h"
 #import "HomeViewCell.h"
@@ -152,6 +154,20 @@
 }
 
 
+#pragma mark - HomeViewCell Delegates
+- (void)homeViewCell:(HomeViewCell *)cell didSelectSubscribe:(ChannelVO *)channelVO {
+	NSLog(@"[*:*] authViewController:didAuthAsOwner:[%@])", channelVO.dictionary);
+	
+	UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:[NSString stringWithFormat:@"Would you pay to subscribe to %@'s channel?", [channelVO.dictionary objectForKey:@"title"]]
+															 delegate:self
+													cancelButtonTitle:@"Cancel"
+											   destructiveButtonTitle:nil
+													otherButtonTitles:@"Yes", @"No", nil];
+	[actionSheet setTag:HomeActionSheetTypeSubscribe];
+	[actionSheet showInView:self.view];
+}
+
+
 #pragma mark - TableView DataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
 	return (1);
@@ -171,6 +187,7 @@
 	cell.delegate = self;
 	
 	[cell populateFields:[_channelNames objectAtIndex:indexPath.row]];
+	cell.channelVO = [ChannelVO channelWithDictionary:[_channelNames objectAtIndex:indexPath.row]];
 	[cell setSelectionStyle:UITableViewCellSelectionStyleGray];
 	
 	return (cell);
@@ -220,6 +237,13 @@
 	[_loadingView addSubview:activityIndicatorView];
 	
 	_selectedRow = indexPath.row;
+	
+	id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+	[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Home"
+														  action:@"Selected Channel"
+														   label:[[_channelNames objectAtIndex:_selectedRow] objectForKey:@"title"]
+														   value:@1] build]];
+	
 	UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
 															 delegate:self
 													cancelButtonTitle:@"Cancel"
@@ -274,13 +298,18 @@
 				[[NSUserDefaults standardUserDefaults] synchronize];
 			}
 			
-			//if (_paginationView.frame.origin.y == self.view.frame.size.height - 40.0) {
-				[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
-					_paginationView.alpha = 0.0;
-	
-				} completion:^(BOOL finished) {
-				}];
-			//}
+			[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
+				_paginationView.alpha = 0.0;
+
+			} completion:^(BOOL finished) {
+			}];
+			
+			id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+			[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Home"
+																  action:@"Show CHannels"
+																   label:@""
+																   value:@1] build]];
+			
 			
 		} else if (scrollView.contentOffset.x < scrollView.contentSize.width - scrollView.frame.size.width) {
 		}
@@ -296,14 +325,11 @@
 		if (scrollView.contentOffset.x >= _scrollView.contentSize.width - _scrollView.frame.size.width) {
 			[self _registerPushNotifications];
 			
-			if (_composeButton.frame.origin.y == scrollView.frame.size.height) {
-				[UIView animateWithDuration:0.250 delay:0.000 options:(UIViewAnimationOptionAllowAnimatedContent|UIViewAnimationOptionAllowUserInteraction|UIViewAnimationCurveEaseIn) animations:^(void) {
-					_composeButton.alpha = 1.0;
-//					_composeButton.frame = CGRectTranslateY(_composeButton.frame, scrollView.frame.size.height - _composeButton.frame.size.height);
-					
-				} completion:^(BOOL finished) {
-				}];
-			}
+			id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+			[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Home"
+																  action:@"Show CHannels"
+																   label:@""
+																   value:@1] build]];
 			
 			
 			if ([[[NSUserDefaults standardUserDefaults] objectForKey:@"terms"] length] == 0) {
@@ -325,6 +351,12 @@
 	NSDictionary *channnelDict = [_channelNames objectAtIndex:_selectedRow];
 	
 	if (actionSheet.tag == HomeActionSheetTypeRowSelect) {
+		id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+		[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Home"
+															  action:@"Action Sheet"
+															   label:[[[_channelNames objectAtIndex:_selectedRow] objectForKey:@"title"] stringByAppendingString:(buttonIndex == 0) ? @" - View" : (buttonIndex == 1) ? @" - Owner" : @" - Cancel"]
+															   value:@1] build]];
+		
 		if (buttonIndex == 0) {
 			//[self.navigationController pushViewController:[[ChannelViewController alloc] initWithChannelName:[channnelDict objectForKey:@"channel"]] animated:YES];
 			[self.navigationController pushViewController:[[ChannelViewController alloc] initWithChannel:[ChannelVO channelWithDictionary:channnelDict]] animated:YES];
@@ -343,6 +375,13 @@
 			[navigationController setNavigationBarHidden:YES];
 			[self presentViewController:navigationController animated:YES completion:nil];
 		}
+	
+	} else if (actionSheet.tag == HomeActionSheetTypeSubscribe) {
+		id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+		[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Home"
+															  action:@"Subscribe"
+															   label:(buttonIndex == 0) ? @"Yes" : (buttonIndex == 1) ? @"No" : @""
+															   value:@1] build]];
 	}
 }
 

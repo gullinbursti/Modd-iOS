@@ -7,6 +7,8 @@
 //
 
 #import "AFNetworking.h"
+#import "GAI.h"
+#import "GAIDictionaryBuilder.h"
 
 #import "Button.h"
 #import "AuthViewController.h"
@@ -89,12 +91,24 @@
 				[[NSUserDefaults standardUserDefaults] synchronize];
 				
 				if ([[result objectForKey:@"name"] isEqualToString:_twitchName]) {
+					id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+					[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Auth"
+																		  action:@"Logged In"
+																		   label:_twitchName
+																		   value:@1] build]];
+					
 					[self.navigationController dismissViewControllerAnimated:YES completion:^(void) {
 						if ([self.delegate respondsToSelector:@selector(authViewController:didAuthAsOwner:)])
 							[self.delegate authViewController:self didAuthAsOwner:_twitchUser];
 					}];
 				
 				} else {
+					id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+					[tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Auth"
+																		  action:@"Failed Logged In"
+																		   label:_twitchName
+																		   value:@1] build]];
+					
 					UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Not Channel Owner!"
 																		message:[@"You are logged in as " stringByAppendingString:[result objectForKey:@"display_name"]]
 																	   delegate:self
